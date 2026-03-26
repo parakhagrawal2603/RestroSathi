@@ -17,8 +17,12 @@ app.use(compression()); // Gzip compression for faster payload transfer
 app.use(morgan('dev')); // HTTP request logging
 
 // Basic Middleware
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) 
+  : true; // Default to true for local development if variable is missing
+
 app.use(cors({
-  origin: true, // Allow all origins during troubleshooting
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
