@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import Image from 'next/image';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import {
