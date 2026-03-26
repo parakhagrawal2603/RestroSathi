@@ -9,9 +9,11 @@ exports.generateToken = (id) => {
 };
 
 exports.loginUser = async (email, password) => {
-  const normalizedEmail = email.toLowerCase();
+  const normalizedEmail = email.toLowerCase().trim();
+  const emailRegex = new RegExp(`^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+
   // 1. Try finding in standard User collection
-  let user = await User.findOne({ email: normalizedEmail }).select('+password');
+  let user = await User.findOne({ email: emailRegex }).select('+password');
   
   if (user) {
     const isMatch = await bcrypt.compare(password, user.password);
@@ -28,7 +30,7 @@ exports.loginUser = async (email, password) => {
   }
 
   // 2. Try finding in SuperAdmin collection
-  const superAdmin = await SuperAdmin.findOne({ email: normalizedEmail }).select('+password');
+  const superAdmin = await SuperAdmin.findOne({ email: emailRegex }).select('+password');
   if (superAdmin) {
     const isMatch = await bcrypt.compare(password, superAdmin.password);
     if (!isMatch) throw new Error('Invalid email or password');
