@@ -46,6 +46,10 @@ app.get('/', (req, res) => {
   res.send('RestroSathi API is running...');
 });
 
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 const { errorHandler } = require('./src/middlewares/errorMiddleware');
 
 // Import Routes
