@@ -18,7 +18,7 @@ app.use(morgan('dev')); // HTTP request logging
 
 // Basic Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', process.env.FRONTEND_URL || '*'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', process.env.CORS_ORIGIN || process.env.FRONTEND_URL || '*'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
