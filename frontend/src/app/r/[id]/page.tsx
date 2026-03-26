@@ -548,8 +548,8 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
             ) : (
               cart.map(item => (
                 <div key={item.menuItem} className="bg-white rounded-3xl p-4 flex gap-4 border border-slate-100 shadow-sm animate-in zoom-in duration-300">
-                  <div className="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
-                    <img src={item.image || "https://via.placeholder.com/100"} alt="" className="w-full h-full object-cover" />
+                  <div className="relative w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
+                    <Image src={item.image || "https://via.placeholder.com/100"} alt="" fill className="object-cover" unoptimized />
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div>
@@ -767,10 +767,12 @@ function MenuItemCard({ item, cart, onAdd, onUpdate }: any) {
       {/* Image Section */}
       <div className="p-2">
         <div className="relative h-28 bg-slate-50 rounded-xl overflow-hidden shadow-inner">
-          <img
+          <Image
             src={item.image || "https://via.placeholder.com/200x200"}
             alt={item.name}
-            className={`w-full h-full object-cover transition-transform duration-700 ease-out ${!item.isAvailable ? 'grayscale opacity-60' : ''}`}
+            fill
+            unoptimized
+            className={`object-cover transition-transform duration-700 ease-out ${!item.isAvailable ? 'grayscale opacity-60' : ''}`}
           />
         </div>
       </div>

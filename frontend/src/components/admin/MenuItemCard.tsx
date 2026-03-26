@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { 
   Clock, CheckCircle2, XCircle, RotateCcw, 
   Edit3, Trash2
@@ -54,13 +55,12 @@ export default function MenuItemCard({
       
       {/* Item Image */}
       <div className="relative w-full h-24 sm:h-32 mb-1 sm:mb-2 overflow-hidden rounded-2xl bg-slate-100">
-        <img 
+        <Image 
           src={item.image || defaultImage} 
           alt={item.name}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = defaultImage;
-          }}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          unoptimized
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </div>
 
