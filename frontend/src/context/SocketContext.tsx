@@ -44,7 +44,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       newSocket.off(); // Cleanup all listeners
       newSocket.disconnect();
     };
-  }, []); // Only run once on mount
+  }, [user?.restaurantId]); // Include restaurantId to re-init on login/logout
 
   // Watch for user changes to join/switch rooms
   useEffect(() => {

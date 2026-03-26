@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { 
@@ -39,11 +39,7 @@ export default function RestaurantDetail() {
   const [notes, setNotes] = useState('');
   const [extensionDays, setExtensionDays] = useState('30');
 
-  useEffect(() => {
-    fetchData();
-  }, [params.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [restRes, orderRes] = await Promise.all([
         api.get(`/restaurants/${params.id}`),
@@ -57,7 +53,12 @@ export default function RestaurantDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, params.id]);
+
 
   const saveNotes = async () => {
     setSaving(true);
@@ -439,7 +440,7 @@ export default function RestaurantDetail() {
             </div>
             <h3 className="text-xl font-black text-slate-800 text-center mb-2">Are you sure?</h3>
             <p className="text-slate-500 font-medium text-center text-sm mb-8 leading-relaxed">
-              You are about to delete <span className="text-slate-800 font-bold">"{restaurant.name}"</span>. This action cannot be undone and will remove all menu items, orders, and staff records.
+              You are about to delete <span className="text-slate-800 font-bold">&quot;{restaurant.name}&quot;</span>. This action cannot be undone and will remove all menu items, orders, and staff records.
             </p>
             
             <div className="flex gap-3">

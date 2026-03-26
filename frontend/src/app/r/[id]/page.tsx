@@ -194,7 +194,7 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
       socket?.off('orderUpdated');
       socket?.off('orderDeleted');
     };
-  }, [socket, params.id]);
+  }, [socket, params.id, orderForm.phone, orderForm.tableNumber]);
 
   const addToCart = (item: any) => {
     setCart(prev => {

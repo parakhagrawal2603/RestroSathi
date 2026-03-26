@@ -427,7 +427,7 @@ function OrderCard({ order, isHistory, onUpdateStatus, onMarkPaid, onViewDetails
           <div className="mt-4 p-2 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-2 animate-pulse-subtle">
             <MessageSquare className="w-3 h-3 text-rose-500 mt-0.5" />
             <p className="text-[10px] font-bold text-rose-700 leading-tight truncate">
-              "{order.instructions}"
+              &quot;{order.instructions}&quot;
             </p>
           </div>
         )}
@@ -527,7 +527,7 @@ function BillDetailsModal({ order, onClose }: { order: any, onClose: () => void 
                 <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">Customer Notes</span>
               </div>
               <p className="text-sm font-bold text-rose-800 italic leading-relaxed">
-                "{order.instructions}"
+                &quot;{order.instructions}&quot;
               </p>
             </div>
           )}

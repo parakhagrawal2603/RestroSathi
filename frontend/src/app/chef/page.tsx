@@ -292,7 +292,7 @@ function ChefOrderCard({ order, onUpdateStatus, onDelete, currentTime }: { order
             <span>📝 Instructions:</span>
           </p>
           <p className="text-sm text-red-700 font-bold italic leading-tight">
-            "{order.instructions}"
+            &quot;{order.instructions}&quot;
           </p>
         </div>
       )}

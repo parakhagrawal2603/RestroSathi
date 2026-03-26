@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/axios';
 import { 
   Search, 
@@ -36,11 +36,7 @@ export default function RestaurantsList() {
   const [selectedExpiry, setSelectedExpiry] = useState<{ id: string, name: string, date: string } | null>(null);
   const [newExpiryDate, setNewExpiryDate] = useState('');
 
-  useEffect(() => {
-    fetchRestaurants();
-  }, [activeTab]);
-
-  const fetchRestaurants = async () => {
+  const fetchRestaurants = useCallback(async () => {
     setLoading(true);
     try {
       const [restRes, orderRes] = await Promise.all([
@@ -54,7 +50,11 @@ export default function RestaurantsList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchRestaurants();
+  }, [fetchRestaurants, activeTab]);
 
   const toggleStatus = async (id: string) => {
     try {
@@ -360,7 +360,7 @@ export default function RestaurantsList() {
             </div>
             <h3 className="text-xl font-black text-slate-800 text-center mb-2">Delete Restaurant?</h3>
             <p className="text-slate-500 font-medium text-center text-sm mb-8 leading-relaxed">
-              Are you sure you want to delete <span className="text-slate-800 font-bold">"{selectedDelete.name}"</span>? This action cannot be undone and will remove all associated data.
+              Are you sure you want to delete <span className="text-slate-800 font-bold">&quot;{selectedDelete.name}&quot;</span>? This action cannot be undone and will remove all associated data.
             </p>
             
             <div className="flex gap-3">

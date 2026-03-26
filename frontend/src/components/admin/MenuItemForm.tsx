@@ -56,7 +56,7 @@ export default function MenuItemForm({
         });
       }
     }
-  }, [isOpen, initialData]); // categories removed from dependency to prevent mid-editing resets
+  }, [isOpen, initialData, categories, initialFormState]); 
 
   // Effect to handle category sync if categories load late
   useEffect(() => {

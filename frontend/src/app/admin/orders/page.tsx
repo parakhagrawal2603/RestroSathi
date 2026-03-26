@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/axios';
 import { 
   ShoppingBag, 
@@ -36,12 +36,26 @@ export default function OrdersPage() {
   // Modal State
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-
   const isSuperAdmin = user?.role === 'super_admin';
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const endpoint = isSuperAdmin ? '/restaurants/orders-summary' : '/orders';
+      const { data } = await api.get(endpoint);
+      setData(data);
+    } catch (error) {
+      toast.error('Failed to load orders');
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [isSuperAdmin]);
 
   useEffect(() => {
     fetchData();
-  }, [isSuperAdmin]);
+  }, [fetchData, isSuperAdmin]);
 
   useEffect(() => {
     if (socket && !isSuperAdmin) {
@@ -67,20 +81,6 @@ export default function OrdersPage() {
     };
   }, [socket, isSuperAdmin]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const endpoint = isSuperAdmin ? '/restaurants/orders-summary' : '/orders';
-      const { data } = await api.get(endpoint);
-      setData(data);
-    } catch (error) {
-      toast.error('Failed to load orders');
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleView = (order: any) => {
     setSelectedOrder(order);
