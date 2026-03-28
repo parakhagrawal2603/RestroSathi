@@ -22,7 +22,21 @@ const allowedOrigins = process.env.CORS_ORIGIN
   : true; // Default to true for local development if variable is missing
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // 1. Allow mobile apps/cURL (no origin)
+    if (!origin) return callback(null, true);
+    
+    // 2. Local dev check
+    if (allowedOrigins === true) return callback(null, true);
+
+    // 3. Normal Origin Check
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS Blocked] Origin: ${origin} not in [${allowedOrigins}]`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));

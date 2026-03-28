@@ -30,7 +30,7 @@ export default function DashboardLayout({
     const checkStatus = async () => {
       if (user?.restaurantId) {
         try {
-          const { data } = await api.get(`/admin/restaurants/${user.restaurantId}`);
+          const { data } = await api.get(`/restaurants/${user.restaurantId}`);
           setRestaurantStatus(data.status);
         } catch (error) {
           console.error('Failed to fetch restaurant status');
