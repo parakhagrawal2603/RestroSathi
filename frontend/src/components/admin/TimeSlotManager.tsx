@@ -20,7 +20,9 @@ export default function TimeSlotManager({
     try {
       const { data } = await api.get('/menu/timeslot');
       setSlots(data);
-    } catch (error) { toast.error('Failed to load Time Slots'); }
+    } catch (error: any) { 
+      toast.error(error.response?.data?.message || 'Failed to load Time Slots'); 
+    }
     finally { setLoading(false); }
   };
 

@@ -281,6 +281,8 @@ export default function AdminDashboard() {
     const daysLeft = differenceInDays(expiry, today);
     const isExpired = daysLeft < 0;
 
+    // Check status explicitly before expiry (as manually deactivated accounts should be handled first)
+    if (restaurantData.status !== 'active') return { label: 'Account Inactive', color: 'bg-rose-50 border-rose-100 text-rose-600', icon: XCircle, days: Math.max(0, daysLeft), expired: true };
     if (isExpired) return { label: 'Plan Expired', color: 'bg-rose-50 border-rose-100 text-rose-600', icon: XCircle, days: 0, expired: true };
     if (daysLeft <= 3) return { label: 'Expiring Soon', color: 'bg-amber-50 border-amber-100 text-amber-600', icon: AlertTriangle, days: daysLeft, expired: false };
     return { label: 'Plan Active', color: 'bg-emerald-50 border-emerald-100 text-emerald-600', icon: CheckCircle2, days: daysLeft, expired: false };

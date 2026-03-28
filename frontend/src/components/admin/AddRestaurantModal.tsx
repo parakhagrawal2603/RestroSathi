@@ -37,7 +37,7 @@ export default function AddRestaurantModal({
 
     setLoading(true);
     try {
-      await api.post('/admin/restaurants', formData);
+      await api.post('/restaurants', formData);
       toast.success('Restaurant onboarded successfully');
       setFormData({ 
         name: '', ownerName: '', email: '', phone: '', address: '', notes: '',
