@@ -180,7 +180,7 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
             // Cleanup if served and paid
             if (updatedOrder.status === 'served' && updatedOrder.isPaid) {
               const updated = prev.filter(o => o._id !== updatedOrder._id);
-              localStorage.setItem('restrosathi_active_orders', JSON.stringify(updated.map(o => o._id)));
+              localStorage.setItem(`restrosathi_active_orders_${params.id}`, JSON.stringify(updated.map(o => o._id)));
               return updated;
             }
 
@@ -196,14 +196,18 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
           setPlacedOrders(prev => {
             if (prev.find(o => o._id === newOrder._id)) return prev;
             const updated = [...prev, newOrder];
-            localStorage.setItem('restrosathi_active_orders', JSON.stringify(updated.map(o => o._id)));
+            localStorage.setItem(`restrosathi_active_orders_${params.id}`, JSON.stringify(updated.map(o => o._id)));
             return updated;
           });
         }
       });
 
       socket.on('orderDeleted', (orderId: string) => {
-        setPlacedOrders(prev => prev.filter(o => o._id !== orderId));
+        setPlacedOrders(prev => {
+          const updated = prev.filter(o => o._id !== orderId);
+          localStorage.setItem(`restrosathi_active_orders_${params.id}`, JSON.stringify(updated.map(o => o._id)));
+          return updated;
+        });
       });
     }
 
@@ -253,10 +257,10 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
         instructions: orderForm.instructions
       });
 
-      // Track the new order
+      // Track the new order (Scoped)
       const updatedPlacedOrders = [...placedOrders, newOrder];
       setPlacedOrders(updatedPlacedOrders);
-      localStorage.setItem('restrosathi_active_orders', JSON.stringify(updatedPlacedOrders.map(o => o._id)));
+      localStorage.setItem(`restrosathi_active_orders_${params.id}`, JSON.stringify(updatedPlacedOrders.map(o => o._id)));
 
       toast.success('Order placed successfully!', { icon: '🔥', duration: 4000 });
       
