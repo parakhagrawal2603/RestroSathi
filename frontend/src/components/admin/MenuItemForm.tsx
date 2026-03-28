@@ -35,7 +35,10 @@ export default function MenuItemForm({
     if (isOpen) {
       api.get('/menu/timeslot')
         .then(res => setTimeSlots(res.data))
-        .catch(() => toast.error('Failed to load Time Slots'));
+        .catch((error) => {
+          const msg = error.response?.data?.message || 'Failed to load Time Slots';
+          toast.error(msg);
+        });
       
       if (initialData) {
         setFormData({

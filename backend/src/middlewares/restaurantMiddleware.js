@@ -26,13 +26,14 @@ const checkRestaurantActive = async (req, res, next) => {
     const restaurant = await Restaurant.findById(restaurantId);
     
     if (!restaurant) {
+      console.error(`[Restaurant Check] FAIL: Restaurant not found for ID: ${restaurantId}`);
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
     if (restaurant.status !== 'active') {
-      console.warn(`[Restaurant Check] Blocked request for inactive restaurant: ${restaurant.name} (${restaurantId})`);
+      console.warn(`[Restaurant Check] BLOCKED: Inactive restaurant "${restaurant.name}" (${restaurantId}). Status: ${restaurant.status}, Approval: ${restaurant.approvalStatus}`);
       return res.status(403).json({ 
-        message: 'Restaurant is inactive',
+        message: `Restaurant is ${restaurant.status}. Contact administrator if this is unexpected.`,
         status: restaurant.status
       });
     }
