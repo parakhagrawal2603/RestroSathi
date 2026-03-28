@@ -4,6 +4,16 @@ import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Clock, CheckCircle2, XCircle } from 'lucide-react';
 
+const initialFormState = {
+  name: '',
+  price: '',
+  categoryId: '',
+  isVeg: true,
+  availabilityMode: 'auto' as 'auto' | 'on' | 'off',
+  timeSlotIds: [] as string[],
+  image: ''
+};
+
 export default function MenuItemForm({ 
   isOpen, 
   onClose, 
@@ -19,15 +29,6 @@ export default function MenuItemForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [timeSlots, setTimeSlots] = useState<any[]>([]);
-  const initialFormState = {
-    name: '',
-    price: '',
-    categoryId: '',
-    isVeg: true,
-    availabilityMode: 'auto' as 'auto' | 'on' | 'off',
-    timeSlotIds: [] as string[],
-    image: ''
-  };
 
   const [formData, setFormData] = useState(initialFormState);
 
@@ -36,7 +37,7 @@ export default function MenuItemForm({
       api.get('/menu/timeslot')
         .then(res => setTimeSlots(res.data))
         .catch((error) => {
-          const msg = error.response?.data?.message || 'Failed to load Time Slots';
+          const msg = error.response?.data?.message || error.message || 'Failed to load Time Slots';
           toast.error(msg);
         });
       
