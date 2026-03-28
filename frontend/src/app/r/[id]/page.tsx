@@ -38,6 +38,14 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
   const { socket } = useSocket();
 
   useEffect(() => {
+    // 0. Reset State on Navigation (Immediate)
+    setLoading(true);
+    setIsInactive(false);
+    setRestaurant(null);
+    setMenu({ categories: [], items: [] });
+    setCart([]);
+    setPlacedOrders([]);
+
     // 1. Fetch Restaurant Details
     api.get(`/restaurants/${params.id}/public`).then(({ data }) => {
       setRestaurant(data);
@@ -54,22 +62,28 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
       setLoading(false);
     });
 
-    // 3. Load saved session data
+    // 3. Load saved session data (SCOPED TO RESTAURANT ID)
     try {
       // 3.1 Load Filters
-      const savedFilters = localStorage.getItem('restrosathi_filters');
+      const savedFilters = localStorage.getItem(`restrosathi_filters_${params.id}`);
       if (savedFilters) {
         const { diet, category } = JSON.parse(savedFilters);
         if (diet) setActiveFilter(diet);
         if (category) setActiveCategory(category);
+      } else {
+        setActiveFilter('all');
+        setActiveCategory('');
       }
 
-      // 3.2 Load Order Form
-      const savedForm = localStorage.getItem('restrosathi_checkout_form');
-      if (savedForm) setOrderForm(JSON.parse(savedForm));
-      else {
-        // Fallback to legacy customer info if exists
-        const legacy = localStorage.getItem('restrosathi_customer_v3');
+      // 3.2 Load Order Form (Customer identity can be global, but table/checkout is scoped)
+      const savedForm = localStorage.getItem(`restrosathi_checkout_form_${params.id}`);
+      if (savedForm) {
+        const parsed = JSON.parse(savedForm);
+        setOrderForm(parsed);
+      } else {
+        setOrderForm(prev => ({ ...prev, tableNumber: '', instructions: '' }));
+        // Try to pre-fill identity from global storage
+        const legacy = localStorage.getItem('restrosathi_customer_identity_v3');
         if (legacy) {
           const parsed = JSON.parse(legacy);
           setOrderForm(prev => ({ ...prev, name: parsed.name || '', phone: parsed.phone || '' }));
@@ -77,7 +91,7 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
       }
 
       // 3.3 Load Cart
-      const savedCart = localStorage.getItem('restrosathi_cart');
+      const savedCart = localStorage.getItem(`restrosathi_cart_${params.id}`);
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         if (parsedCart.length > 0) {
@@ -87,20 +101,19 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
       }
 
       // 3.4 Load Active Orders
-      const savedOrders = localStorage.getItem('restrosathi_active_orders');
+      const savedOrders = localStorage.getItem(`restrosathi_active_orders_${params.id}`);
       if (savedOrders) {
         const orderIds = JSON.parse(savedOrders);
         if (orderIds.length > 0) {
           setRestoringOrders(true);
           // Fetch status of these orders using Public API
           Promise.all(orderIds.map((id: string) => {
-            console.log("Stored orderId:", id);
             return api.get(`/orders/public/${id}`).then(r => r.data).catch(() => null);
           }))
             .then(results => {
               const active = results.filter((o: any) => o && !(o.status === 'served' && o.isPaid));
               setPlacedOrders(active);
-              localStorage.setItem('restrosathi_active_orders', JSON.stringify(active.map((o: any) => o._id)));
+              localStorage.setItem(`restrosathi_active_orders_${params.id}`, JSON.stringify(active.map((o: any) => o._id)));
               setRestoringOrders(false);
             })
             .catch(() => setRestoringOrders(false));
@@ -111,18 +124,22 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
     }
   }, [params.id]);
 
-  // Persistence Effects
+  // Persistence Effects (SCOPED TO RESTAURANT ID)
   useEffect(() => {
-    localStorage.setItem('restrosathi_cart', JSON.stringify(cart));
-  }, [cart]);
+    if (params.id) localStorage.setItem(`restrosathi_cart_${params.id}`, JSON.stringify(cart));
+  }, [cart, params.id]);
 
   useEffect(() => {
-    localStorage.setItem('restrosathi_checkout_form', JSON.stringify(orderForm));
-  }, [orderForm]);
+    if (params.id) {
+      localStorage.setItem(`restrosathi_checkout_form_${params.id}`, JSON.stringify(orderForm));
+      // Store identity globally to remember user across scans
+      localStorage.setItem('restrosathi_customer_identity_v3', JSON.stringify({ name: orderForm.name, phone: orderForm.phone }));
+    }
+  }, [orderForm, params.id]);
 
   useEffect(() => {
-    localStorage.setItem('restrosathi_filters', JSON.stringify({ diet: activeFilter, category: activeCategory }));
-  }, [activeFilter, activeCategory]);
+    if (params.id) localStorage.setItem(`restrosathi_filters_${params.id}`, JSON.stringify({ diet: activeFilter, category: activeCategory }));
+  }, [activeFilter, activeCategory, params.id]);
 
   useEffect(() => {
     if (socket && params.id) {
@@ -227,7 +244,7 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
 
     setSubmitting(true);
     try {
-      localStorage.setItem('restrosathi_customer_v3', JSON.stringify({ name: orderForm.name, phone: orderForm.phone }));
+      localStorage.setItem('restrosathi_customer_identity_v3', JSON.stringify({ name: orderForm.name, phone: orderForm.phone }));
       const { data: newOrder } = await api.post('/orders', {
         restaurantId: params.id,
         tableNumber: Number(orderForm.tableNumber),
@@ -243,10 +260,10 @@ export default function CustomerMenu({ params }: { params: { id: string } }) {
 
       toast.success('Order placed successfully!', { icon: '🔥', duration: 4000 });
       
-      // Clear Session
+      // Clear Session (Scoped)
       setCart([]);
-      localStorage.removeItem('restrosathi_cart');
-      localStorage.removeItem('restrosathi_checkout_form');
+      localStorage.removeItem(`restrosathi_cart_${params.id}`);
+      localStorage.removeItem(`restrosathi_checkout_form_${params.id}`);
       
       setOrderForm(prev => ({ ...prev, instructions: '' }));
       setView('orders');
